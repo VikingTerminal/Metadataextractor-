@@ -8,4 +8,4 @@
 
 📲 chmod +x metadata py
 
-📲 python metadata py
+📲 python 'metadata py'
