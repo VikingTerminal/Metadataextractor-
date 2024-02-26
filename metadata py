@@ -1,0 +1,99 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+import sys
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
+}
+
+def ottieni_metadati(link):
+    try:
+        response = requests.get(link, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        meta_tags = soup.find_all('meta')
+
+        metadati = {}
+        for tag in meta_tags:
+            attributi = tag.attrs
+            chiave = attributi.get('name', attributi.get('property', '').capitalize()) 
+            if chiave and 'content' in attributi:
+                metadati[chiave] = attributi['content']
+
+        return metadati
+
+    except Exception as e:
+        effetto_macchina_da_scrivere(f"\033[1;31;40mOops! Qualcosa è andato storto: {e}\033[0m")
+        return None
+
+def converti_in_struttura_nidificata(metadati):
+    risultato_nidificato = {}
+
+    for chiave, valore in metadati.items():
+        chiavi = chiave.split('.')
+        livello_corrente = risultato_nidificato
+
+        for i, chiave_parziale in enumerate(chiavi):
+            if i == len(chiavi) - 1:
+                livello_corrente[chiave_parziale] = valore
+            else:
+                if chiave_parziale not in livello_corrente:
+                    livello_corrente[chiave_parziale] = {}
+                livello_corrente = livello_corrente[chiave_parziale]
+
+    return risultato_nidificato
+
+def stampa_struttura_nidificata(metadati_nidificati, livello=0):
+    for chiave, valore in metadati_nidificati.items():
+        if isinstance(valore, dict):
+            print(f"{'  ' * livello}{chiave}:")
+            stampa_struttura_nidificata(valore, livello + 1)
+        else:
+            print(f"{'  ' * livello}{chiave}: {valore}")
+
+def effetto_macchina_da_scrivere(testo):
+    for carattere in testo:
+        sys.stdout.write(carattere)
+        sys.stdout.flush()
+        time.sleep(0.02)  
+    print()
+
+def stampa_barra_avanzamento(percentuale):
+    larghezza_barra = 50
+    completamento = int(larghezza_barra * percentuale / 100)
+    barra = '=' * completamento + '-' * (larghezza_barra - completamento)
+    sys.stdout.write(f'\r[{barra}] {percentuale}%')
+    sys.stdout.flush()
+
+def main():
+    try:
+        link_input = input("\033[1;34;40m🌐 Inserisci il link da esaminare: \033[0m")
+        metadati = ottieni_metadati(link_input)
+
+        if metadati:
+            effetto_macchina_da_scrivere("\n\033[1;32;40m🌟 Metadati ottenuti con successo! Ecco le informazioni:\033[0m")
+            for chiave, valore in metadati.items():
+                effetto_macchina_da_scrivere(f"\033[1;36;40m{chiave}:\033[0m {valore}")
+                time.sleep(0.1)  
+
+            effetto_macchina_da_scrivere("\n\033[1;33;40m🚀 Metadati strutturati nidificati:\033[0m")
+            metadati_nidificati = converti_in_struttura_nidificata(metadati)
+            stampa_struttura_nidificata(metadati_nidificati)
+
+        else:
+            effetto_macchina_da_scrivere("\033[1;31;40m😿 Impossibile ottenere i metadati dal link. Forse c'è un problema con il sito.\033[0m")
+
+    except Exception as e:
+        effetto_macchina_da_scrivere(f"\033[1;31;40mOops! Qualcosa è andato storto: {e}\033[0m")
+
+if __name__ == '__main__':
+    main()
+    
+    print("\nPremi INVIO per chiudere il programma.")
+    
+    try:
+        input()
+        print("\033[1;34;40m🌐 Visita https://github.com/VikingTerminal per provare altre utility.\033[0m")
+    except KeyboardInterrupt:
+        pass  
