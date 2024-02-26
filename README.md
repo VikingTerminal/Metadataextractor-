@@ -1,2 +1,11 @@
-# Metadataextractor-
-This tool is a universal metadata extractor. You just need to paste the link to analyze 
+📲 pip install requests
+
+📲 pip install bs4
+
+📲 git clone https://github.com/VikingTerminal/Metadataextractor-
+
+📲 cd Metadataextractor-
+
+📲 chmod +x metadata py
+
+📲 python metadata py
